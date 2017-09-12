@@ -1,35 +1,53 @@
 //----------------CALCULADORA-----------------
 var Calculadora = (function(){
 
-  var digitos; //Los dígitos mostrados actualmente en la pantalla (string)
-  var display;
+  var numeroDisplay; //Los dígitos mostrados actualmente en la pantalla (string)
+  var display; //Span del display de la calculadora
 
   function inicializar(){
     display = document.getElementById("display");
     mostrarNumero("0");
-  };
+  }
 
+  //Agregar una cifra al numero actual. Llamada al pulsar un número
   function anadirCifra(cifra){
-    if(cifra == 0 && digitos == "0"){
+    if(cifra == 0 && numeroDisplay == "0"){
       return;
     } else {
-      if(digitos == "0"){
+      if(numeroDisplay == "0"){
         mostrarNumero(cifra.toString());
       } else {
-        mostrarNumero(digitos + cifra.toString());
+        mostrarNumero(numeroDisplay + cifra.toString());
       }
     }
   }
 
-  function mostrarNumero(txtNumero){
-    var textoNum = txtNumero;
-    if(textoNum.length > 8){
-      textoNum = textoNum.substring(0, 8);
+  //"Corta" el número ingresado para que tenga 8 dígitos o menos.
+  //No cuenta el punto (.) o el menos (-) como dígito
+  function truncarA8Digitos(txtNumero){
+    var digitos = 0;
+    var textoAMantener = "";
+
+    for(var i = 0; i < txtNumero.length; i++){
+      if(!isNaN(parseInt(txtNumero[i]))){ //Si el caracter es un dígito
+        digitos++;
+        if(digitos > 8){
+          break;
+        }
+      }
+      textoAMantener += txtNumero[i];
     }
-    digitos = textoNum;
-    display.innerHTML = digitos;
+    return textoAMantener;
   }
 
+  //Reemplaza el número que esté en el display por el parámetro enviado
+  function mostrarNumero(txtNumero){
+    var textoNum = truncarA8Digitos(txtNumero);
+    numeroDisplay = textoNum;
+    display.innerHTML = numeroDisplay;
+  }
+
+  //Llamamos a inicializar aquí, luego de haber definido todas las funciones
   inicializar();
 
   return {
@@ -46,7 +64,9 @@ var Calculadora = (function(){
 
     },
     pulsaTeclaPunto : function(){
-
+      if(numeroDisplay.indexOf(".") == -1){ //Si el número NO tiene punto
+        mostrarNumero(numeroDisplay + ".");
+      }
     },
     pulsaTeclaIgual : function(){
 
