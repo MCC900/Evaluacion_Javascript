@@ -1,17 +1,46 @@
 //----------------CALCULADORA-----------------
 var Calculadora = (function(){
 
-  var digitos; //Los dígitos mostrados actualmente en la pantalla
+  var digitos; //Los dígitos mostrados actualmente en la pantalla (string)
+  var display;
+
+  function inicializar(){
+    display = document.getElementById("display");
+    mostrarNumero("0");
+  };
+
+  function anadirCifra(cifra){
+    if(cifra == 0 && digitos == "0"){
+      return;
+    } else {
+      if(digitos == "0"){
+        mostrarNumero(cifra.toString());
+      } else {
+        mostrarNumero(digitos + cifra.toString());
+      }
+    }
+  }
+
+  function mostrarNumero(txtNumero){
+    var textoNum = txtNumero;
+    if(textoNum.length > 8){
+      textoNum = textoNum.substring(0, 8);
+    }
+    digitos = textoNum;
+    display.innerHTML = digitos;
+  }
+
+  inicializar();
 
   return {
     pulsaTeclaOn : function(){
-
+      mostrarNumero("0");
     },
     pulsaTeclaOperacion : function(operacion){
 
     },
     pulsaTeclaNumero : function(numero){
-
+      anadirCifra(numero);
     },
     pulsaTeclaSigno : function(){
 
@@ -23,6 +52,7 @@ var Calculadora = (function(){
 
     }
   }
+
 })();
 //--------------------------------------------
 //------------------TECLAS--------------------
@@ -102,7 +132,7 @@ teclaIgual.addEventListener("mousedown", function(e){
 
 for(var i = 0; i <= 9; i++){
   teclasNumero[i].addEventListener("mousedown", function(e){
-    Calculadora.pulsaTeclaNumero(i);
+    Calculadora.pulsaTeclaNumero(e.target.id);
     achicarTecla(e.target);
   })
 }
