@@ -22,6 +22,18 @@ var Calculadora = (function(){
     }
   }
 
+  //Cuenta los dígitos del número. No es usada en la función de truncar sino
+  //al presionar la tecla punto para evitar poner punto si ya hay 8 dígitos
+  function contarDigitos(txtNumero){
+    var cantDigitos = 0;
+    for(var i = 0; i < txtNumero.length; i++){
+      if(!isNaN(parseInt(txtNumero[i]))){ //Si el caracter es un dígito
+        cantDigitos++;
+      }
+    }
+    return cantDigitos;
+  }
+
   //"Corta" el número ingresado para que tenga 8 dígitos o menos.
   //No cuenta el punto (.) o el menos (-) como dígito
   function truncarA8Digitos(txtNumero){
@@ -61,10 +73,18 @@ var Calculadora = (function(){
       anadirCifra(numero);
     },
     pulsaTeclaSigno : function(){
-
+      var estaSigno = numeroDisplay[0] == "-";
+      if(estaSigno){
+        mostrarNumero(numeroDisplay.substring(1));
+      } else{
+        if(numeroDisplay != "0"){
+          mostrarNumero("-" + numeroDisplay);
+        }
+      }
     },
     pulsaTeclaPunto : function(){
-      if(numeroDisplay.indexOf(".") == -1){ //Si el número NO tiene punto
+       //Si el número NO tiene punto y hay menos de 8 dígitos
+      if(numeroDisplay.indexOf(".") == -1 && contarDigitos(numeroDisplay) < 8){
         mostrarNumero(numeroDisplay + ".");
       }
     },
