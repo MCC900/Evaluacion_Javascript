@@ -2,11 +2,17 @@
 var Calculadora = (function(){
 
   var numeroDisplay; //Los dígitos mostrados actualmente en la pantalla (string)
-  var display; //Span del display de la calculadora
+  var display; //<span> del display de la calculadora
+  var numMemoria; //Aquí se guarda el primer operando mientras se realiza una operación
+  var operMemoria; //Aquí se guarda el tipo de operación que se está realizando
+  var numMemoria2; //Aquí se guarda el segundo operando luego de realizar una operación
 
   function inicializar(){
     display = document.getElementById("display");
     mostrarNumero("0");
+    numMemoria = "";
+    numMemoria2 = "";
+    operMemoria = "";
   }
 
   //Agregar una cifra al numero actual. Llamada al pulsar un número
@@ -37,6 +43,12 @@ var Calculadora = (function(){
   //"Corta" el número ingresado para que tenga 8 dígitos o menos.
   //No cuenta el punto (.) o el menos (-) como dígito
   function truncarA8Digitos(txtNumero){
+    //Aquí una pequeña prueba para ver si el número es mayor a 99999999 y truncarlo al mismo..
+    //No se pedía en la evaluación pero quedaba bonito.
+    var probarNumero = parseFloat(txtNumero);
+    if(!isNaN(probarNumero) && probarNumero > 99999999){
+      return "99999999";
+    }
     var digitos = 0;
     var textoAMantener = "";
 
@@ -59,6 +71,45 @@ var Calculadora = (function(){
     display.innerHTML = numeroDisplay;
   }
 
+  //Suma
+  function sumar(num1, num2){
+    return num1 + num2;
+  }
+
+  //Resta
+  function restar(num1, num2){
+    return num1 - num2;
+  }
+
+  //Multiplicación
+  function multiplicar(num1, num2){
+    return num1 * num2;
+  }
+
+  //División
+  function dividir(num1, num2){
+    return num1 / num2;
+  }
+
+//  function raiz(num){
+//    return Math.sqrt(num);
+//  }
+
+  //Realiza la operación enviada por parámetro y la muestra en pantalla
+  function calcularMostrar(operacion, num1, num2){
+    var resultado;
+    switch(operacion){
+      case "suma": resultado = sumar(num1, num2);
+        break;
+      case "resta": resultado = restar(num1, num2);
+        break;
+      case "multiplica":  resultado = multiplicar(num1, num2);
+        break;
+      case "divide":  resultado = dividir(num1, num2);
+        break;
+    }
+    mostrarNumero(resultado.toString());
+  }
   //Llamamos a inicializar aquí, luego de haber definido todas las funciones
   inicializar();
 
@@ -66,12 +117,19 @@ var Calculadora = (function(){
     pulsaTeclaOn : function(){
       mostrarNumero("0");
     },
-    pulsaTeclaOperacion : function(operacion){
 
+    pulsaTeclaOperacion : function(operacion){
+      if(numeroDisplay != ""){ //Puede estar vacío por pulsar dos veces seguidas teclas de operación
+        numMemoria = parseFloat(numeroDisplay);
+        mostrarNumero("");
+      }
+      operMemoria = operacion;
     },
+
     pulsaTeclaNumero : function(numero){
       anadirCifra(numero);
     },
+
     pulsaTeclaSigno : function(){
       var estaSigno = numeroDisplay[0] == "-";
       if(estaSigno){
@@ -82,18 +140,35 @@ var Calculadora = (function(){
         }
       }
     },
+
     pulsaTeclaPunto : function(){
        //Si el número NO tiene punto y hay menos de 8 dígitos
       if(numeroDisplay.indexOf(".") == -1 && contarDigitos(numeroDisplay) < 8){
         mostrarNumero(numeroDisplay + ".");
       }
     },
-    pulsaTeclaIgual : function(){
 
+    pulsaTeclaIgual : function(){
+      if(numeroDisplay != ""){ //Esto ocurre al oprimir el igual inmediatamente luego de una tecla de operación
+        var resultado;
+        var numActual = parseFloat(numeroDisplay);
+
+        //-----------------OPERACIÓN NORMAL---------------------
+        if(numMemoria != ""){ //Hay un primer operando en memoria
+          calcularMostrar(operMemoria, numMemoria, numActual);
+          numMemoria = ""; //Borramos el número en memoria
+          numMemoria2 = numActual; //Ahora guardamos el segundo número por si se quiere
+                                  //repetir la operación pulsando igual nuevamente
+
+        //------------REPETIR ÚLTIMA OPERACIÓN-----------------
+        } else if(numMemoria2 != ""){ //Hay un segundo operando en memoria (operación reciente)
+          calcularMostrar(operMemoria, numActual, numMemoria2);
+        }
+      }
     }
   }
-
 })();
+
 //--------------------------------------------
 //------------------TECLAS--------------------
 var teclaOn = document.getElementById("on");
@@ -154,7 +229,7 @@ teclaDivide.addEventListener("mousedown", function(e){
   achicarTecla(e.target);
 });
 teclaRaiz.addEventListener("mousedown", function(e){
-  Calculadora.pulsaTeclaOperacion("raiz");
+  //Calculadora.pulsaTeclaOperacion("raiz");
   achicarTecla(e.target);
 });
 teclaSigno.addEventListener("mousedown", function(e){
